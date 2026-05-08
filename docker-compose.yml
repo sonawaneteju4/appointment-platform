@@ -1,0 +1,63 @@
+services:
+  gateway-service:
+    build:
+      context: .
+      dockerfile: ./apps/gateway-service/Dockerfile
+
+    container_name: gateway-service
+
+    ports:
+      - '4000:4000'
+
+    env_file:
+      - ./apps/gateway-service/.env
+
+    depends_on:
+      - auth-service
+
+    restart: unless-stopped
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./apps/auth-service/Dockerfile
+
+    container_name: auth-service
+
+    ports:
+      - '4001:4001'
+
+    env_file:
+      - ./apps/auth-service/.env
+
+    depends_on:
+      - mongodb
+      - redis
+
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7
+
+    container_name: mongodb
+
+    ports:
+      - '27017:27017'
+
+    volumes:
+      - mongodb_data:/data/db
+
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+
+    container_name: redis
+
+    ports:
+      - '6379:6379'
+
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
